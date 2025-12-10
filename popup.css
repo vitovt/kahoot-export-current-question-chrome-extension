@@ -10,10 +10,28 @@
   font-size: 18px;
 }
 
+.label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #555;
+}
+
 .status {
   margin: 0 0 12px;
   font-size: 13px;
   color: #444;
+}
+
+.status.error {
+  color: #b00020;
+}
+
+.status.success {
+  color: #0b7a1e;
 }
 
 button {
@@ -27,6 +45,11 @@ button {
   border-radius: 6px;
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 textarea {
   width: 100%;
   min-height: 140px;
@@ -34,4 +57,10 @@ textarea {
   padding: 8px;
   font-family: monospace;
   resize: vertical;
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #555;
 }

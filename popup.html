@@ -8,10 +8,12 @@
   </head>
   <body>
     <main class="container">
-      <h1 class="title">Kahoot Export</h1>
-      <p class="status">Click the button to prepare the Markdown.</p>
+      <h1 class="title">Kahoot Question Export</h1>
+      <p class="status" role="status">Looking for the current question…</p>
       <button id="export">Copy current question</button>
-      <textarea id="output" readonly></textarea>
+      <label class="label" for="output">Markdown preview</label>
+      <textarea id="output" readonly aria-label="Markdown output"></textarea>
+      <p class="hint">Content is copied to the clipboard when found.</p>
     </main>
     <script src="popup.js"></script>
   </body>
