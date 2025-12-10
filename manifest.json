@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Kahoot Question Exporter",
+  "description": "Export the current Kahoot question and answers to Markdown.",
+  "version": "0.0.1",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_title": "Copy Kahoot question",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
