@@ -1,6 +1,7 @@
 const statusEl = document.querySelector('.status');
 const outputEl = document.getElementById('output');
 const exportButton = document.getElementById('export');
+const closeButton = document.getElementById('close-popup');
 const tabButtons = Array.from(document.querySelectorAll('.tab'));
 const tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
 const prefixInput = document.getElementById('question-prefix');
@@ -199,6 +200,10 @@ async function init() {
       }
     });
   });
+
+  if (closeButton) {
+    closeButton.addEventListener('click', () => window.close());
+  }
 
   settings = await loadSettings();
   if (prefixInput && separatorInput) {
