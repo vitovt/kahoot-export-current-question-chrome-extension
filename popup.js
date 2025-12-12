@@ -46,11 +46,18 @@ async function copyToClipboard(text) {
   }
 }
 
+function markdownSafe(value) {
+  if (!value) return '';
+  return String(value).replace(/[\\`*_\[\]]/g, '\\$&');
+}
+
 function buildMarkdown(question, answers, currentSettings = settings) {
   const normalizedPrefix = currentSettings?.prefix ?? DEFAULT_SETTINGS.prefix;
   const normalizedSeparator = currentSettings?.separator ?? DEFAULT_SETTINGS.separator;
-  const lines = answers.map((answer) => `- ${answer}`);
-  return `${normalizedPrefix}${question}
+  const safeQuestion = markdownSafe(question);
+  const safeAnswers = answers.map((answer) => markdownSafe(answer));
+  const lines = safeAnswers.map((answer) => `- ${answer}`);
+  return `${normalizedPrefix}${safeQuestion}
 ${normalizedSeparator}
 ${lines.join('\n')}
 
