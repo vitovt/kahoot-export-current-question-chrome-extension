@@ -5,10 +5,14 @@ const tabButtons = Array.from(document.querySelectorAll('.tab'));
 const tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
 const prefixInput = document.getElementById('question-prefix');
 const separatorInput = document.getElementById('separator');
+const correctPrefixInput = document.getElementById('correct-prefix');
+const incorrectPrefixInput = document.getElementById('incorrect-prefix');
 
 const DEFAULT_SETTINGS = {
   separator: '?',
-  prefix: '### '
+  prefix: '### ',
+  correctPrefix: '+',
+  incorrectPrefix: '-'
 };
 
 let settings = { ...DEFAULT_SETTINGS };
@@ -54,6 +58,8 @@ function markdownSafe(value) {
 function buildMarkdown(question, answers, currentSettings = settings) {
   const normalizedPrefix = currentSettings?.prefix ?? DEFAULT_SETTINGS.prefix;
   const normalizedSeparator = currentSettings?.separator ?? DEFAULT_SETTINGS.separator;
+  const normalizedCorrectPrefix = currentSettings?.correctPrefix ?? DEFAULT_SETTINGS.correctPrefix;
+  const normalizedIncorrectPrefix = currentSettings?.incorrectPrefix ?? DEFAULT_SETTINGS.incorrectPrefix;
   const safeQuestion = markdownSafe(question);
   const normalizedAnswers = Array.isArray(answers) ? answers : [];
   const safeAnswers = normalizedAnswers
@@ -67,7 +73,7 @@ function buildMarkdown(question, answers, currentSettings = settings) {
     })
     .filter((answer) => answer.text);
 
-  const lines = safeAnswers.map((answer) => `${answer.correct ? '+' : '-'} ${answer.text}`);
+  const lines = safeAnswers.map((answer) => `${answer.correct ? normalizedCorrectPrefix : normalizedIncorrectPrefix} ${answer.text}`);
   return `${normalizedPrefix}${safeQuestion}
 ${normalizedSeparator}
 ${lines.join('\n')}
@@ -113,7 +119,9 @@ function saveSettings(nextSettings) {
 async function handleSettingChange() {
   settings = {
     prefix: prefixInput.value ?? DEFAULT_SETTINGS.prefix,
-    separator: separatorInput.value ?? DEFAULT_SETTINGS.separator
+    separator: separatorInput.value ?? DEFAULT_SETTINGS.separator,
+    correctPrefix: correctPrefixInput.value ?? DEFAULT_SETTINGS.correctPrefix,
+    incorrectPrefix: incorrectPrefixInput.value ?? DEFAULT_SETTINGS.incorrectPrefix
   };
 
   await saveSettings(settings);
@@ -311,12 +319,16 @@ async function init() {
   }
 
   settings = await loadSettings();
-  if (prefixInput && separatorInput) {
+  if (prefixInput && separatorInput && correctPrefixInput && incorrectPrefixInput) {
     prefixInput.value = settings.prefix;
     separatorInput.value = settings.separator;
+    correctPrefixInput.value = settings.correctPrefix;
+    incorrectPrefixInput.value = settings.incorrectPrefix;
 
     prefixInput.addEventListener('input', handleSettingChange);
     separatorInput.addEventListener('input', handleSettingChange);
+    correctPrefixInput.addEventListener('input', handleSettingChange);
+    incorrectPrefixInput.addEventListener('input', handleSettingChange);
   }
 
   runExport();
