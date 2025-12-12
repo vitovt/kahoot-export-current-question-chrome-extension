@@ -3,6 +3,27 @@
   padding: 16px;
   font-family: Arial, sans-serif;
   color: #111;
+  position: relative;
+}
+
+.container > * {
+  position: relative;
+  z-index: 1;
+}
+
+.logo-wrapper {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0.80
+  pointer-events: none;
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
 }
 
 .title {
