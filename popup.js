@@ -53,7 +53,7 @@ function buildMarkdown(question, answers, currentSettings = settings) {
   return `${normalizedPrefix}${question}
 ${normalizedSeparator}
 ${lines.join('\n')}
-  
+
 `;
 }
 
