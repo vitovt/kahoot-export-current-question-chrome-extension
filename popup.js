@@ -1,6 +1,5 @@
 const statusEl = document.querySelector('.status');
 const outputEl = document.getElementById('output');
-const exportButton = document.getElementById('export');
 const closeButton = document.getElementById('close-popup');
 const tabButtons = Array.from(document.querySelectorAll('.tab'));
 const tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
@@ -164,7 +163,6 @@ async function fetchQuestionFromActiveTab() {
 }
 
 async function runExport() {
-  exportButton.disabled = true;
   setStatus('Collecting question…');
   outputEl.value = '';
   lastExport = null;
@@ -184,8 +182,6 @@ async function runExport() {
   } catch (error) {
     console.error(error);
     setStatus('Could not find a Kahoot question on this page.', 'error');
-  } finally {
-    exportButton.disabled = false;
   }
 }
 
@@ -214,7 +210,6 @@ async function init() {
     separatorInput.addEventListener('input', handleSettingChange);
   }
 
-  exportButton.addEventListener('click', runExport);
   runExport();
 }
 

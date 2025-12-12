@@ -8,16 +8,6 @@
   </head>
   <body>
     <main class="container">
-      <button class="close-btn" id="close-popup" type="button" aria-label="Close popup">×</button>
-      <div class="logo-wrapper">
-        <img
-          class="logo"
-          src="icons/icon-128.png"
-          alt="Kahoot Export logo"
-          width="128"
-          height="128"
-        />
-      </div>
       <div class="tabs" role="tablist">
         <button
           class="tab active"
@@ -40,11 +30,20 @@
           Settings
         </button>
       </div>
+      <button class="close-btn" id="close-popup" type="button" aria-label="Close popup">×</button>
+      <div class="logo-wrapper">
+        <img
+          class="logo"
+          src="icons/icon-128.png"
+          alt="Kahoot Export logo"
+          width="128"
+          height="128"
+        />
+      </div>
 
       <section id="export-panel" class="tab-panel active" role="tabpanel" aria-labelledby="tab-export">
         <h1 class="title">Kahoot Question Export</h1>
         <p class="status" role="status">Looking for the current question…</p>
-        <button id="export">Copy current question</button>
         <label class="label" for="output">Markdown preview</label>
         <textarea id="output" readonly aria-label="Markdown output"></textarea>
         <p class="hint">Content is copied to the clipboard when found.</p>
