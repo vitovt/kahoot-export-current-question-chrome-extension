@@ -1,6 +1,18 @@
 const statusEl = document.querySelector('.status');
 const outputEl = document.getElementById('output');
 const exportButton = document.getElementById('export');
+const tabButtons = Array.from(document.querySelectorAll('.tab'));
+const tabPanels = Array.from(document.querySelectorAll('.tab-panel'));
+const prefixInput = document.getElementById('question-prefix');
+const separatorInput = document.getElementById('separator');
+
+const DEFAULT_SETTINGS = {
+  separator: '?',
+  prefix: '### '
+};
+
+let settings = { ...DEFAULT_SETTINGS };
+let lastExport = null;
 
 function setStatus(text, type = 'info') {
   statusEl.textContent = text;
@@ -10,6 +22,18 @@ function setStatus(text, type = 'info') {
   } else if (type === 'success') {
     statusEl.classList.add('success');
   }
+}
+
+function activateTab(tabName) {
+  tabButtons.forEach((button) => {
+    const isActive = button.dataset.tab === tabName;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
+  });
+
+  tabPanels.forEach((panel) => {
+    panel.classList.toggle('active', panel.id === `${tabName}-panel`);
+  });
 }
 
 async function copyToClipboard(text) {
@@ -22,13 +46,63 @@ async function copyToClipboard(text) {
   }
 }
 
-function buildMarkdown(question, answers) {
+function buildMarkdown(question, answers, currentSettings = settings) {
+  const normalizedPrefix = currentSettings?.prefix ?? DEFAULT_SETTINGS.prefix;
+  const normalizedSeparator = currentSettings?.separator ?? DEFAULT_SETTINGS.separator;
   const lines = answers.map((answer) => `- ${answer}`);
-  return `### ${question}
-?
+  return `${normalizedPrefix}${question}
+${normalizedSeparator}
 ${lines.join('\n')}
   
 `;
+}
+
+function loadSettings() {
+  return new Promise((resolve) => {
+    if (!chrome?.storage?.sync) {
+      resolve({ ...DEFAULT_SETTINGS });
+      return;
+    }
+
+    chrome.storage.sync.get(DEFAULT_SETTINGS, (result) => {
+      if (chrome.runtime.lastError) {
+        console.warn('Failed to load settings', chrome.runtime.lastError);
+        resolve({ ...DEFAULT_SETTINGS });
+        return;
+      }
+
+      resolve({ ...DEFAULT_SETTINGS, ...result });
+    });
+  });
+}
+
+function saveSettings(nextSettings) {
+  return new Promise((resolve) => {
+    if (!chrome?.storage?.sync) {
+      resolve();
+      return;
+    }
+
+    chrome.storage.sync.set(nextSettings, () => {
+      if (chrome.runtime.lastError) {
+        console.warn('Failed to save settings', chrome.runtime.lastError);
+      }
+      resolve();
+    });
+  });
+}
+
+async function handleSettingChange() {
+  settings = {
+    prefix: prefixInput.value ?? DEFAULT_SETTINGS.prefix,
+    separator: separatorInput.value ?? DEFAULT_SETTINGS.separator
+  };
+
+  await saveSettings(settings);
+
+  if (lastExport) {
+    outputEl.value = buildMarkdown(lastExport.question, lastExport.answers);
+  }
 }
 
 async function fetchQuestionFromActiveTab() {
@@ -92,6 +166,7 @@ async function runExport() {
   exportButton.disabled = true;
   setStatus('Collecting question…');
   outputEl.value = '';
+  lastExport = null;
 
   try {
     const { question, answers } = await fetchQuestionFromActiveTab();
@@ -99,6 +174,7 @@ async function runExport() {
       throw new Error('Question or answers missing.');
     }
 
+    lastExport = { question, answers };
     const markdown = buildMarkdown(question, answers);
     outputEl.value = markdown;
     const copied = await copyToClipboard(markdown);
@@ -112,6 +188,29 @@ async function runExport() {
   }
 }
 
-exportButton.addEventListener('click', runExport);
+async function init() {
+  activateTab('export');
 
-runExport();
+  tabButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const targetTab = button.dataset.tab;
+      if (targetTab) {
+        activateTab(targetTab);
+      }
+    });
+  });
+
+  settings = await loadSettings();
+  if (prefixInput && separatorInput) {
+    prefixInput.value = settings.prefix;
+    separatorInput.value = settings.separator;
+
+    prefixInput.addEventListener('input', handleSettingChange);
+    separatorInput.addEventListener('input', handleSettingChange);
+  }
+
+  exportButton.addEventListener('click', runExport);
+  runExport();
+}
+
+init();

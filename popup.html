@@ -11,18 +11,52 @@
       <div class="logo-wrapper">
         <img
           class="logo"
-          src="icons/icon-64.png"
+          src="icons/icon-128.png"
           alt="Kahoot Export logo"
-          width="64"
-          height="64"
+          width="128"
+          height="128"
         />
       </div>
-      <h1 class="title">Kahoot Question Export</h1>
-      <p class="status" role="status">Looking for the current question…</p>
-      <button id="export">Copy current question</button>
-      <label class="label" for="output">Markdown preview</label>
-      <textarea id="output" readonly aria-label="Markdown output"></textarea>
-      <p class="hint">Content is copied to the clipboard when found.</p>
+      <div class="tabs" role="tablist">
+        <button
+          class="tab active"
+          data-tab="export"
+          id="tab-export"
+          role="tab"
+          aria-selected="true"
+          aria-controls="export-panel"
+        >
+          Export
+        </button>
+        <button
+          class="tab"
+          data-tab="settings"
+          id="tab-settings"
+          role="tab"
+          aria-selected="false"
+          aria-controls="settings-panel"
+        >
+          Settings
+        </button>
+      </div>
+
+      <section id="export-panel" class="tab-panel active" role="tabpanel" aria-labelledby="tab-export">
+        <h1 class="title">Kahoot Question Export</h1>
+        <p class="status" role="status">Looking for the current question…</p>
+        <button id="export">Copy current question</button>
+        <label class="label" for="output">Markdown preview</label>
+        <textarea id="output" readonly aria-label="Markdown output"></textarea>
+        <p class="hint">Content is copied to the clipboard when found.</p>
+      </section>
+
+      <section id="settings-panel" class="tab-panel" role="tabpanel" aria-labelledby="tab-settings">
+        <h2 class="subtitle">Formatting</h2>
+        <label class="label" for="question-prefix">Question prefix</label>
+        <input id="question-prefix" type="text" value="### " />
+        <label class="label" for="separator">Separator between question and answers</label>
+        <input id="separator" type="text" value="?" />
+        <p class="hint">Changes are saved automatically.</p>
+      </section>
     </main>
     <script src="popup.js"></script>
   </body>
