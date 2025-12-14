@@ -1,11 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Kahoot Question Exporter",
+  "short_name": "KahQ-Export",
   "description": "Export the current Kahoot question and answers to Markdown.",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "action": {
     "default_title": "Copy Kahoot question",
