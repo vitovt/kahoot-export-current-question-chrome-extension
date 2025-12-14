@@ -142,12 +142,35 @@ async function fetchQuestionFromActiveTab() {
     func: () => {
       const getText = (el) => (el?.innerText || '').trim();
       const getPaths = (root) => Array.from(root ? root.querySelectorAll('path') : []);
+      const stripIndicators = (node) => {
+        if (!node) return null;
+        const clone = node.cloneNode(true);
+        const indicatorSelectors = [
+          '[data-functional-selector="open-ended-answer-count"]',
+          '[class*="CorrectAnswerIndicator"]',
+          '[data-functional-selector="icon"]'
+        ];
+        indicatorSelectors.forEach((selector) => {
+          clone.querySelectorAll(selector).forEach((el) => el.remove());
+        });
+        return clone;
+      };
       const normalizeD = (d) => (d || '').trim().replace(/\s+/g, ' ').toLowerCase();
       const CHECK_PATH_PATTERN = /21\.9659.*13\.6554.*25\.8261/;
       const CROSS_PATH_PATTERNS = [
         /10\.1818 8.*13\.8182 16.*24 10\.1818/,
         /10\.1818 8.*8 10\.1818.*5\.8182 5\.8182/
       ];
+      const isIndicatorNode = (node) => {
+        if (!node) return false;
+        const dfs = (node.getAttribute('data-functional-selector') || '').toLowerCase();
+        const cls = (node.className || '').toString().toLowerCase();
+        if (dfs.includes('answer-count')) return true;
+        if (dfs.includes('correct-count')) return true;
+        if (cls.includes('correctcount')) return true;
+        if (cls.includes('correctanswerindicator')) return true;
+        return false;
+      };
 
       const hasCheckIcon = (node) => {
         const paths = getPaths(node);
@@ -209,7 +232,7 @@ async function fetchQuestionFromActiveTab() {
 
       const choiceNodes = Array.from(
         document.querySelectorAll('[data-functional-selector^="answer-"], [data-functional-selector*="answer-"], [data-functional-selector*="answer"]')
-      ).filter((node) => node.matches('button, div'));
+      ).filter((node) => node.matches('button, div') && !isIndicatorNode(node));
 
       let answers = choiceNodes
         .map((node) => {
@@ -218,9 +241,10 @@ async function fetchQuestionFromActiveTab() {
             node.querySelector('[data-functional-selector^="question-choice-text"]') ||
             node.querySelector('p') ||
             node;
+          const cleanedTextTarget = stripIndicators(textTarget) || textTarget;
           const disabled = node.hasAttribute('disabled') || node.getAttribute('aria-disabled') === 'true';
           return {
-            text: getText(textTarget),
+            text: getText(cleanedTextTarget),
             correct: isCorrectAnswer(node),
             disabled
           };
@@ -236,15 +260,19 @@ async function fetchQuestionFromActiveTab() {
               node.closest('[data-functional-selector*="answer-"]') ||
               node.closest('[data-functional-selector*="answer"]') ||
               node;
+            if (isIndicatorNode(container) || isIndicatorNode(node)) {
+              return null;
+            }
             const textTarget = node.querySelector('p') || node;
+            const cleanedTextTarget = stripIndicators(textTarget) || textTarget;
             const disabled = container.hasAttribute('disabled') || container.getAttribute('aria-disabled') === 'true';
             return {
-              text: getText(textTarget),
+              text: getText(cleanedTextTarget),
               correct: isCorrectAnswer(container),
               disabled
             };
           })
-          .filter((entry) => Boolean(entry.text));
+          .filter((entry) => entry && Boolean(entry.text));
       }
 
       if (!answers.some((answer) => answer.correct)) {
