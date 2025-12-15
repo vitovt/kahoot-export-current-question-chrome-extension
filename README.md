@@ -1,28 +1,20 @@
 # Kahoot Question Exporter
 
-A lightweight Chrome extension that captures the current Kahoot question and answers, formats them as Markdown, and copies the result to your clipboard automatically.
+A Chrome extension that grabs the currently visible Kahoot question and answers, formats them as Markdown, and copies the result to your clipboard automatically. Correct answers are marked with a configurable prefix (default `+`), while other options use a separate prefix (default `-`).
 
-## What it does
+## Screenshots
 
-- Scrapes the question title and answer options from the open Kahoot question view.
-- Builds Markdown in the shape:
-  ```
-  ### Question text
-  ?
-  - Answer A
-  - Answer B
-  - Answer C
-  - Answer D
-    
-  ```
-- Copies the Markdown to your clipboard and shows it in the popup for reference.
+![Main popup](screenshots/main_window.png)
 
-## Usage
+![Settings](screenshots/settings_window.png)
 
-1. Open a Kahoot question page in your browser.
-2. Click the extension icon. The popup runs immediately; if it finds the question and answers, it copies the Markdown to the clipboard.
-3. Paste the Markdown into your notes.
-4. If the question does not load on the first try, press **Copy current question** in the popup to retry.
+## Features
+
+- Auto-scrapes the current Kahoot question and answers when you open the popup.
+- Marks correct answers (after a question is answered) and prefixes them with `+` by default; other answers use `-` by default.
+- Supports multiple-choice and open-ended Kahoot question types; skips score/count indicators.
+- Escapes Markdown-sensitive characters and deduplicates answers to keep exports clean.
+- Saves formatting preferences (question prefix, separator, correct/incorrect prefixes) in Chrome sync storage.
 
 ## Installation (development mode)
 
@@ -31,7 +23,27 @@ A lightweight Chrome extension that captures the current Kahoot question and ans
 3. Toggle **Developer mode** on.
 4. Click **Load unpacked** and select the `kahoot-export-current-question-chrome-extension` directory.
 
-## Notes
+## Usage
 
-- The extension only needs `activeTab` and `scripting` permissions to read the current page content when you click the icon.
-- The popup runs its scrape only when opened or when you press the button; it does not run in the background.
+1. Open a Kahoot question page in your browser.
+2. Click the extension icon. The popup runs immediately; if it finds the question and answers, it copies the Markdown to the clipboard and shows a preview.
+3. Paste the Markdown wherever you need it. If you want to retry, press **Copy current question** in the popup.
+
+## Settings
+
+- **Question prefix**: Added before the question line (default `### `).
+- **Separator**: Line placed between the question and answers (default `?`).
+- **Prefix for correct answers**: Marker for correct options (default `+`).
+- **Prefix for other answers**: Marker for remaining options (default `-`).
+
+Settings save automatically and are used in both the preview and clipboard output.
+
+## Permissions and privacy
+
+- Requires `activeTab` and `scripting` to read the current page’s question/answers when you open the popup.
+- No data leaves your browser; everything stays in the popup and clipboard.
+
+## Troubleshooting
+
+- If nothing appears, ensure the Kahoot question is visible on the page, then click **Copy current question** again.
+- For open-ended questions, only the actual correct text is exported—score/count badges are ignored.
