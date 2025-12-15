@@ -3,10 +3,7 @@
 A Chrome extension that grabs the currently visible Kahoot question and answers, formats them as Markdown, and copies the result to your clipboard automatically. Correct answers are marked with a configurable prefix (default `+`), while other options use a separate prefix (default `-`).
 
 ## Screenshots
-
-![Main popup](screenshots/main_window.png)
-
-![Settings](screenshots/settings_window.png)
+<img src="screenshots/main_window.png" alt="Main popup" width="400">&nbsp;<img src="screenshots/settings_window.png" alt="Settings" width="400">
 
 ## Features
 
@@ -47,3 +44,10 @@ Settings save automatically and are used in both the preview and clipboard outpu
 
 - If nothing appears, ensure the Kahoot question is visible on the page, then click **Copy current question** again.
 - For open-ended questions, only the actual correct text is exported—score/count badges are ignored.
+
+## Important
+
+- The **Kahoot-export-current-question** Chrome extension is **not affiliated with, endorsed by, or associated with** Kahoot! or its services. *Kahoot!* and the *K!* logo are trademarks of **Kahoot! AS**.
+- This extension is **developed solely for educational purposes**. Its primary goal is to help users review and relearn test questions in order to improve learning outcomes. The author assumes **no responsibility for copyright or other legal violations** resulting from its use.
+
+
