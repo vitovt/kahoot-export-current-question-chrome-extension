@@ -5,6 +5,14 @@ A Chrome extension that grabs the currently visible Kahoot question and answers,
 ## Screenshots
 <img src="screenshots/main_window.png" alt="Main popup" width="400">&nbsp;<img src="screenshots/settings_window.png" alt="Settings" width="400">
 
+## My Usage
+
+Primarily, I use this extension to export all questions from my German class tests into Obsidian Markdown (see the following screenshot) and review them one or more times. Additionally, one of the Obsidian spaced-repetition plugins can be used for further practice.
+
+<img src="screenshots/obsidian_exported_questions.png" alt="Obsidian Markdown" width="400">
+
+
+
 ## Features
 
 - Auto-scrapes the current Kahoot question and answers when you open the popup.
