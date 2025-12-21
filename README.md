@@ -18,6 +18,7 @@ Primarily, I use this extension to export all questions from my German class tes
 - Auto-scrapes the current Kahoot question and answers when you open the popup.
 - Marks correct answers (after a question is answered) and prefixes them with `+` by default; other answers use `-` by default.
 - Supports multiple-choice and open-ended Kahoot question types; skips score/count indicators.
+- Supports jumble/word-order draggable jumble cards.
 - Escapes Markdown-sensitive characters and deduplicates answers to keep exports clean.
 - Saves formatting preferences (question prefix, separator, correct/incorrect prefixes) in Chrome sync storage.
 

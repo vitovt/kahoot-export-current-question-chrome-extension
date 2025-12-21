@@ -230,6 +230,46 @@ async function fetchQuestionFromActiveTab() {
         document.querySelector('[class*="question-title"]') ||
         document.querySelector('[role="heading"]');
 
+      const jumbleCards = Array.from(document.querySelectorAll('[data-functional-selector^="draggable-jumble-card"]'));
+      if (jumbleCards.length) {
+        const isJumbleOrderRevealed = jumbleCards.every((card) => {
+          if (card.querySelector('[class*="CorrectIndicator"]')) return true;
+          return hasCheckIcon(card);
+        });
+
+        const jumbleAnswers = jumbleCards
+          .map((card, index) => {
+            const textTarget =
+              card.querySelector('[data-functional-selector^="question-choice-text"]') || card.querySelector('p') || card;
+            const cleanedTextTarget = stripIndicators(textTarget) || textTarget;
+            const tabIndex = parseInt(card.getAttribute('tabindex') ?? card.tabIndex, 10);
+
+            return {
+              text: getText(cleanedTextTarget) || card.getAttribute('aria-label') || '',
+              tabIndex: Number.isFinite(tabIndex) ? tabIndex : null,
+              index
+            };
+          })
+          .filter((entry) => Boolean(entry.text));
+
+        if (jumbleAnswers.length) {
+          const sortedByOrder = [...jumbleAnswers].sort((a, b) => {
+            const aOrder = a.tabIndex ?? Number.MAX_SAFE_INTEGER;
+            const bOrder = b.tabIndex ?? Number.MAX_SAFE_INTEGER;
+            if (aOrder === bOrder) return a.index - b.index;
+            return aOrder - bOrder;
+          });
+
+          return {
+            question: getText(questionEl),
+            answers: sortedByOrder.map((answer) => ({
+              text: answer.text,
+              correct: isJumbleOrderRevealed
+            }))
+          };
+        }
+      }
+
       const choiceNodes = Array.from(
         document.querySelectorAll('[data-functional-selector^="answer-"], [data-functional-selector*="answer-"], [data-functional-selector*="answer"]')
       ).filter((node) => node.matches('button, div') && !isIndicatorNode(node));
