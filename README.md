@@ -22,6 +22,10 @@ Primarily, I use this extension to export all questions from my German class tes
 - Escapes Markdown-sensitive characters and deduplicates answers to keep exports clean.
 - Saves formatting preferences (question prefix, separator, correct/incorrect prefixes) in Chrome sync storage.
 
+## Install from chrome webstore
+
+https://chromewebstore.google.com/detail/kahoot-question-exporter/gldcgeajbgpkoacgmcdlefghmllongkh
+
 ## Installation (development mode)
 
 1. Clone or download this repository.
