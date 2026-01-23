@@ -3,7 +3,7 @@
   "name": "Kahoot Question Exporter",
   "short_name": "KahQ-Export",
   "description": "Export the current Kahoot question and answers to Markdown.",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "permissions": [
     "activeTab",
     "scripting",

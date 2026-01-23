@@ -56,11 +56,12 @@ function markdownSafe(value) {
 }
 
 function buildMarkdown(question, answers, currentSettings = settings) {
+  const questionIsMarkdown = Boolean(currentSettings?.questionIsMarkdown);
   const normalizedPrefix = currentSettings?.prefix ?? DEFAULT_SETTINGS.prefix;
   const normalizedSeparator = currentSettings?.separator ?? DEFAULT_SETTINGS.separator;
   const normalizedCorrectPrefix = currentSettings?.correctPrefix ?? DEFAULT_SETTINGS.correctPrefix;
   const normalizedIncorrectPrefix = currentSettings?.incorrectPrefix ?? DEFAULT_SETTINGS.incorrectPrefix;
-  const safeQuestion = markdownSafe(question);
+  const safeQuestion = questionIsMarkdown ? String(question || '').trim() : markdownSafe(question);
   const normalizedAnswers = Array.isArray(answers) ? answers : [];
   const safeAnswers = normalizedAnswers
     .map((answer) => {
@@ -127,7 +128,10 @@ async function handleSettingChange() {
   await saveSettings(settings);
 
   if (lastExport) {
-    outputEl.value = buildMarkdown(lastExport.question, lastExport.answers);
+    outputEl.value = buildMarkdown(lastExport.question, lastExport.answers, {
+      ...settings,
+      questionIsMarkdown: lastExport.questionIsMarkdown
+    });
   }
 }
 
@@ -161,6 +165,50 @@ async function fetchQuestionFromActiveTab() {
         /10\.1818 8.*13\.8182 16.*24 10\.1818/,
         /10\.1818 8.*8 10\.1818.*5\.8182 5\.8182/
       ];
+      const QUESTION_FORMAT_SELECTORS = 'b,strong,i,em,u,del,s,strike,sub,sup,br';
+
+      const escapeMarkdownText = (value) => String(value || '').replace(/[\\`*_\[\]]/g, '\\$&');
+      const wrapMarkdown = (value, wrapper) => {
+        const text = String(value || '');
+        if (!text.trim()) return text;
+        const leading = text.match(/^\s+/)?.[0] ?? '';
+        const trailing = text.match(/\s+$/)?.[0] ?? '';
+        const core = text.trim();
+        if (!core) return text;
+        return `${leading}${wrapper}${core}${wrapper}${trailing}`;
+      };
+      const wrapHtmlTag = (value, tag) => {
+        const text = String(value || '');
+        if (!text.trim()) return text;
+        const leading = text.match(/^\s+/)?.[0] ?? '';
+        const trailing = text.match(/\s+$/)?.[0] ?? '';
+        const core = text.trim();
+        if (!core) return text;
+        return `${leading}<${tag}>${core}</${tag}>${trailing}`;
+      };
+      const renderQuestionNode = (node) => {
+        if (!node) return '';
+        if (node.nodeType === Node.TEXT_NODE) {
+          return escapeMarkdownText(node.textContent || '');
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return '';
+        const tag = (node.tagName || '').toLowerCase();
+        if (tag === 'br') return '\n';
+        const content = Array.from(node.childNodes).map(renderQuestionNode).join('');
+        if (!content) return '';
+        if (tag === 'b' || tag === 'strong') return wrapMarkdown(content, '**');
+        if (tag === 'i' || tag === 'em') return wrapMarkdown(content, '*');
+        if (tag === 'u') return wrapHtmlTag(content, 'u');
+        if (tag === 's' || tag === 'del' || tag === 'strike') return wrapMarkdown(content, '~~');
+        if (tag === 'sup') return wrapHtmlTag(content, 'sup');
+        if (tag === 'sub') return wrapHtmlTag(content, 'sub');
+        return content;
+      };
+      const getQuestionMarkdown = (node) => {
+        if (!node) return '';
+        const raw = Array.from(node.childNodes).map(renderQuestionNode).join('');
+        return raw.replace(/[ \t]+/g, ' ').replace(/\s*\n\s*/g, '\n').trim();
+      };
       const isIndicatorNode = (node) => {
         if (!node) return false;
         const dfs = (node.getAttribute('data-functional-selector') || '').toLowerCase();
@@ -230,6 +278,9 @@ async function fetchQuestionFromActiveTab() {
         document.querySelector('[class*="question-title"]') ||
         document.querySelector('[role="heading"]');
 
+      const hasQuestionFormatting = Boolean(questionEl?.querySelector?.(QUESTION_FORMAT_SELECTORS));
+      const questionMarkdown = hasQuestionFormatting ? getQuestionMarkdown(questionEl) : '';
+
       const jumbleCards = Array.from(document.querySelectorAll('[data-functional-selector^="draggable-jumble-card"]'));
       if (jumbleCards.length) {
         const isJumbleOrderRevealed = jumbleCards.every((card) => {
@@ -261,7 +312,8 @@ async function fetchQuestionFromActiveTab() {
           });
 
           return {
-            question: getText(questionEl),
+            question: questionMarkdown || getText(questionEl),
+            questionIsMarkdown: Boolean(questionMarkdown),
             answers: sortedByOrder.map((answer) => ({
               text: answer.text,
               correct: isJumbleOrderRevealed
@@ -338,7 +390,8 @@ async function fetchQuestionFromActiveTab() {
       }
 
       return {
-        question: getText(questionEl),
+        question: questionMarkdown || getText(questionEl),
+        questionIsMarkdown: Boolean(questionMarkdown),
         answers: Array.from(dedupedMap.values())
       };
     }
@@ -353,13 +406,16 @@ async function runExport() {
   lastExport = null;
 
   try {
-    const { question, answers } = await fetchQuestionFromActiveTab();
+    const { question, answers, questionIsMarkdown } = await fetchQuestionFromActiveTab();
     if (!question || !answers?.length) {
       throw new Error('Question or answers missing.');
     }
 
-    lastExport = { question, answers };
-    const markdown = buildMarkdown(question, answers);
+    lastExport = { question, answers, questionIsMarkdown };
+    const markdown = buildMarkdown(question, answers, {
+      ...settings,
+      questionIsMarkdown
+    });
     outputEl.value = markdown;
     const copied = await copyToClipboard(markdown);
 

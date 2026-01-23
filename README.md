@@ -21,6 +21,7 @@ Primarily, I use this extension to export all questions from my German class tes
 - Supports jumble/word-order draggable jumble cards.
 - Escapes Markdown-sensitive characters and deduplicates answers to keep exports clean.
 - Saves formatting preferences (question prefix, separator, correct/incorrect prefixes) in Chrome sync storage.
+- Supports formating in question, converts html formating to markdown
 
 ## Install from chrome webstore
 
